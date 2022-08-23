@@ -1,10 +1,10 @@
 
-from model import Section, Actions, Criteria
+from model import Section, Loads, Criteria
 
 class ASTApp:
   pass
 
-  def __init__(self, section:Section,criteria:Criteria, actions:Actions):
+  def __init__(self, section:Section,criteria:Criteria, actions:Loads):
     self.username = ""
     self.section = section
     self.actions = actions
