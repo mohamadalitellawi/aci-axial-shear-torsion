@@ -131,7 +131,7 @@ class ASTApp:
           self.loads.parse_manual_data(inputdata.split(","))
           self.loads.print_shear_design_forces()
         
-        print ("message,Label,Ratio,MainBar Count,StrLegsX,StrLegsY")
+        print (ast_calc.SHEAR_TORSION_RESULT_HEADER)
         print(ast_calc.calculate_shear_torsion(self.loads,self.criteria,self.section))
         print("----------------------------------\n")
         continue
@@ -156,13 +156,14 @@ class ASTApp:
 
           load_data = self.sm.get_loads()
           output_data = []
-          output_data.append(["message", "Label", "Ratio", "MainBar Count", "StrLegsX", "StrLegsY"])
+          output_data.append(ast_calc.SHEAR_TORSION_RESULT_HEADER)
           for i, row in enumerate(load_data):
             self.loads.parse_excel_data(row)
             output_data.append(ast_calc.calculate_shear_torsion(self.loads,self.criteria,self.section))
           
           criteria_str = self.criteria.get_inputdata_str(with_title=True)
           section_str = self.section.get_inputdata_str(with_title=True)
+          output_data.append([])
           output_data.append(criteria_str.split(","))
           output_data.append(section_str.split(","))
           self.sm.create_output_sheet(output_data)
