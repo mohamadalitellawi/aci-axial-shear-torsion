@@ -97,7 +97,7 @@ def calculate_shear_torsion(loads:Loads,criteria:Criteria,section:Section, x_dir
   vu_max = round(min(vu_max_x, vu_max_y),3)
   vu = round(math.sqrt(vu_torsion ** 2 + vu_x ** 2 + vu_y ** 2),3)
   if vu > vu_max:
-    message =  "increase section size"
+    message =  f"increase section size {vu=} > {vu_max=}"
   else:
     message = f"Success {vu=} <= {vu_max=}"
   

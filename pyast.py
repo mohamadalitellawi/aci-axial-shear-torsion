@@ -1,14 +1,19 @@
 
+from doctest import OutputChecker
 from model import Section, Loads, Criteria
+from sheetmanager import SheetManager
+import sheartorsioncalculations as ast_calc
 
 class ASTApp:
   pass
 
-  def __init__(self, section:Section,criteria:Criteria, actions:Loads):
+  def __init__(self):
     self.username = ""
-    self.section = section
-    self.actions = actions
-    self.criteria = criteria
+    self.section = Section()
+    self.loads = Loads()
+    self.criteria = Criteria()
+    self.sm : SheetManager = None
+
 
 
   def startup(self):        
@@ -29,10 +34,15 @@ class ASTApp:
   def menu_header(self):
     print("--------------------------------")
     print("Please make a selection:")
-    print("(M): Repeat this menu")
-    print("(L): List quizzes")
-    print("(T): Take a quiz")
-    print("(E): Exit program")
+    print("(M): repeat this Menu")
+
+    print("(D): Define Criteria")
+    print("(A): Add Section")
+
+    print("(C): calculate from manual data")
+    print("(E): Calculate from excel sheet data (Section Cut sap results)")
+
+    print("(X): eXit program")
 
   def menu_error(self):
     print("That's not a valid selection. Please try again.")
@@ -56,37 +66,105 @@ class ASTApp:
         continue
 
       selection = selection.capitalize()
-      if selection[0] == 'E':
+      if selection[0] == 'X':
         self.goodbye()
         break
       elif selection[0] == 'M':
         self.menu_header()
         continue
-      elif selection[0] == 'L':
-        print("\nAvailable Quizzes Are:")
-        # list the available quizzes
-        self.qm.list_quizzes()
+
+      elif selection[0] == 'A':
+        print("\nAdd/Update Current Section [units mm]:")
+        
+        if self.section is None:
+          self.section = Section()
+        self.section.print_section_inputdata( print_header=True)
+
+        # ask the user if they want to update the data
+        doupdate = input("Update the Data? (y/n): ")
+        doupdate = doupdate.capitalize()
+        if (len(doupdate) > 0 and doupdate[0] == 'Y'):
+          inputdata = input("Enter New data:\n")
+          if inputdata.capitalize()[0] == "X": continue
+          self.section.parse_manual_data(inputdata.split(","))
+          self.section.print_section_inputdata()
+
         print("----------------------------------\n")
         continue
-      elif selection[0] == 'T':
+
+
+
+      elif selection[0] == 'D':
+        print("\nDefine/Update Design Criteria [units mpa]:")
+        
+        if self.criteria is None:
+          self.criteria = Criteria()
+        self.criteria.print_inputdata( print_header=True)
+
+        # ask the user if they want to update the data
+        doupdate = input("Update the Data? (y/n): ")
+        doupdate = doupdate.capitalize()
+        if (len(doupdate) > 0 and doupdate[0] == 'Y'):
+          inputdata = input("Enter New data:\n")
+          if inputdata.capitalize()[0] == "X": continue
+          self.criteria.parse_manual_data(inputdata.split(","))
+          self.criteria.print_inputdata()
+
+        print("----------------------------------\n")
+        continue
+
+
+
+
+      elif selection[0] == 'C':
+        print("\nUpdate Shear Design Forces [units kN,m]:")
+        if self.loads is None:
+          self.loads = Loads()
+        self.loads.print_shear_design_forces(print_header=True)
+
+        # ask the user if they want to update the data
+        doupdate = input("Update the Data? (y/n): ")
+        doupdate = doupdate.capitalize()
+        if (len(doupdate) > 0 and doupdate[0] == 'Y'):
+          inputdata = input("Enter New data:\n")
+          if inputdata.capitalize()[0] == "X": continue
+          self.loads.parse_manual_data(inputdata.split(","))
+          self.loads.print_shear_design_forces()
+
+        print("----------------------------------\n")
+        continue
+
+      elif selection[0] == 'E':
+        print("\nDefine/Update Excel file name and sheet name:")
         try:
-          quiznum = int(input("Quiz number: "))
-          print(f"You've selected quiz {quiznum}")
+          if self.sm is None:
+            excelfilename = input("Enter Excel File Name: ")
+            sheetname = input("Enter Sheet Name: ")
+            self.sm = SheetManager(excelfilename,sheetname)
+          self.sm.print_file_sheet_names()
+          # ask the user if they want to update the data
+          doupdate = input("Update the Data? (y/n): ")
+          doupdate = doupdate.capitalize()
+          if (len(doupdate) > 0 and doupdate[0] == 'Y'):
+            excelfilename = input("Enter Excel File Name: ")
+            if excelfilename.capitalize()[0] == "X": continue
+            sheetname = input("Enter Sheet Name: ")
+            self.sm = SheetManager(excelfilename,sheetname)
+            self.sm.print_file_sheet_names()
 
-          # start the quiz and get the results back
-          self.qm.take_quiz(quiznum, self.username)
-          self.qm.print_results()
+          load_data = self.sm.get_loads()
+          output_data = []
+          for i, row in enumerate(load_data):
+            self.loads.parse_excel_data(row)
+            output_data.append(ast_calc.calculate_shear_torsion(self.loads,self.criteria,self.section))
 
-          # ask the user if they want to save the results
-          dosave = input("Save the results? (y/n): ")
-          dosave = dosave.capitalize()
-          if (len(dosave) > 0 and dosave[0] == 'Y'):
-            self.qm.save_results()
-        except:
+          self.sm.create_output_sheet(output_data)
+          self.criteria.print_inputdata()
+          self.section.print_section_inputdata()
+        except Exception as e:
           self.menu_error()
-        else:
-            # if we get here, the user didn't make a valid selection
-            self.menu_error()
+          raise e
+
 
   def run(self):
     # Execute the startup routine - ask for name, print greeting, etc
@@ -96,4 +174,5 @@ class ASTApp:
 
 if __name__ == "__main__":
     app = ASTApp()
+    app.sm = SheetManager(r".\data\220825_section forces.xlsx",r"Section Cut Forces - Analysis")
     app.run()
