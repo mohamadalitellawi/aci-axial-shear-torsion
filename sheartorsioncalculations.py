@@ -100,7 +100,7 @@ def calculate_shear_torsion(loads:Loads,criteria:Criteria,section:Section, x_dir
     message =  f"increase section size {vu=} > {vu_max=}"
   else:
     message = f"Success {vu=} <= {vu_max=}"
-  
+  ratio = round(vu/vu_max,3)
   n_main_bar = math.ceil(4 * Al / (math.pi * section.main_bar_dia ** 2 ))
 
   Av_x_total = Av_x + 2 * At
@@ -111,7 +111,7 @@ def calculate_shear_torsion(loads:Loads,criteria:Criteria,section:Section, x_dir
   Av_y_total = max(Av_y_total, Av_min_y)
   n_y_legs = math.ceil(4 * Av_y_total / (math.pi * section.stirrups_bar_dia ** 2))
 
-  return (message, n_main_bar, n_x_legs, n_y_legs)
+  return (message,loads.label,ratio, n_main_bar, n_x_legs, n_y_legs)
 
 
 if __name__ == "__main__":

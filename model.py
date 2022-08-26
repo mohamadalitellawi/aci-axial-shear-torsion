@@ -9,10 +9,13 @@ class Section:
     self.stirrups_bar_dia = stirrups_bar_dia
     self.stirrups_spacing = stirrups_spacing
 
-  def print_section_inputdata(self,print_header = False):
+  def get_inputdata_str(self,print_header = False, with_title = False):
+    data = f"{self.width},{self.height},{self.cover},{self.main_bar_dia},{self.stirrups_bar_dia},{self.stirrups_spacing}"
     if print_header:
-      print("Width, Height, Concrete Cover, Main Bar Diameter, Stirrups Bar Diamater, Stirrups Bar Spacing")
-    print(f"{self.width},{self.height},{self.cover},{self.main_bar_dia},{self.stirrups_bar_dia},{self.stirrups_spacing}")
+      return f"Width, Height, Concrete Cover, Main Bar Diameter, Stirrups Bar Diamater, Stirrups Bar Spacing\n{data}"
+    elif with_title:
+      return f"Width={self.width},Height={self.height},Cover={self.cover},MainBar={self.main_bar_dia},StrBar={self.stirrups_bar_dia},StrBarSpac={self.stirrups_spacing}"
+    return data
 
   def parse_manual_data(self,data_row):
     self.width = float(data_row[0].strip())
@@ -100,10 +103,13 @@ class Criteria:
     self.fyt = fyt
     self.phi_shear = phi_shear
 
-  def print_inputdata(self,print_header = False):
+  def get_inputdata_str(self,print_header = False, with_title = False):
+    data = f"{self.fc},{self.fy},{self.fyt},{self.phi_shear}"
     if print_header:
-      print("FC, FY, FYT (stirrups), Phi shear")
-    print(f"{self.fc},{self.fy},{self.fyt},{self.phi_shear}")
+      return f"FC, FY, FYT (stirrups), Phi shear\n{data}"
+    elif with_title:
+      return f"FC={self.fc},FY={self.fy},FYT={self.fyt},PHI={self.phi_shear}"
+    return data
 
   def parse_manual_data(self,data_row):
     self.fc = float(data_row[0].strip())

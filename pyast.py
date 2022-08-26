@@ -78,7 +78,7 @@ class ASTApp:
         
         if self.section is None:
           self.section = Section()
-        self.section.print_section_inputdata( print_header=True)
+        print(self.section.get_inputdata_str( print_header=True))
 
         # ask the user if they want to update the data
         doupdate = input("Update the Data? (y/n): ")
@@ -87,7 +87,7 @@ class ASTApp:
           inputdata = input("Enter New data:\n")
           if inputdata.capitalize()[0] == "X": continue
           self.section.parse_manual_data(inputdata.split(","))
-          self.section.print_section_inputdata()
+          print(self.section.get_inputdata_str())
 
         print("----------------------------------\n")
         continue
@@ -99,7 +99,7 @@ class ASTApp:
         
         if self.criteria is None:
           self.criteria = Criteria()
-        self.criteria.print_inputdata( print_header=True)
+        print(self.criteria.get_inputdata_str( print_header=True))
 
         # ask the user if they want to update the data
         doupdate = input("Update the Data? (y/n): ")
@@ -108,7 +108,7 @@ class ASTApp:
           inputdata = input("Enter New data:\n")
           if inputdata.capitalize()[0] == "X": continue
           self.criteria.parse_manual_data(inputdata.split(","))
-          self.criteria.print_inputdata()
+          print(self.criteria.get_inputdata_str())
 
         print("----------------------------------\n")
         continue
@@ -130,7 +130,9 @@ class ASTApp:
           if inputdata.capitalize()[0] == "X": continue
           self.loads.parse_manual_data(inputdata.split(","))
           self.loads.print_shear_design_forces()
-
+        
+        print ("message,Label,Ratio,MainBar Count,StrLegsX,StrLegsY")
+        print(ast_calc.calculate_shear_torsion(self.loads,self.criteria,self.section))
         print("----------------------------------\n")
         continue
 
@@ -154,13 +156,17 @@ class ASTApp:
 
           load_data = self.sm.get_loads()
           output_data = []
+          output_data.append(["message", "Label", "Ratio", "MainBar Count", "StrLegsX", "StrLegsY"])
           for i, row in enumerate(load_data):
             self.loads.parse_excel_data(row)
             output_data.append(ast_calc.calculate_shear_torsion(self.loads,self.criteria,self.section))
-
+          
+          criteria_str = self.criteria.get_inputdata_str(with_title=True)
+          section_str = self.section.get_inputdata_str(with_title=True)
+          output_data.append(criteria_str.split(","))
+          output_data.append(section_str.split(","))
           self.sm.create_output_sheet(output_data)
-          self.criteria.print_inputdata()
-          self.section.print_section_inputdata()
+
         except Exception as e:
           self.menu_error()
           raise e

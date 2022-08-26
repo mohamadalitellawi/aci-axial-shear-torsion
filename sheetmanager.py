@@ -42,7 +42,7 @@ class SheetManager:
 
     if data is None: return
 
-    for i, row in enumerate(data,start=self.topRowOfData + 1):
+    for i, row in enumerate(data,start=self.topRowOfData ):
       for j, val in enumerate(row, start=1):
         #_ = out_ws.cell(column=j, row=i, value="{0}".format( get_column_letter(j)))
         _ = out_ws.cell(column=j, row=i, value="{0}".format( val ))
