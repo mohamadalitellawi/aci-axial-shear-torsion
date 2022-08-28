@@ -11,7 +11,9 @@ def main():
   print(result)
 
 
-SHEAR_TORSION_RESULT_HEADER = ["message", "Label", "Combination" ,"Ratio", "MainBar Count", "StrLegsX", "StrLegsY"]
+SHEAR_TORSION_RESULT_HEADER = ["message", "Label", "Combination" ,"Ratio",
+                               "MainBar Count", "StrLegsX", "StrLegsY",
+                               "Nu kN", "Vu_y kN" , "Vu_x kN","Tu kN.m"]
 
 
 
@@ -111,7 +113,7 @@ def calculate_shear_torsion(loads:Loads,criteria:Criteria,section:Section, x_dir
   Av_y_total = max(Av_y_total, Av_min_y)
   n_y_legs = math.ceil(4 * Av_y_total / (math.pi * section.stirrups_bar_dia ** 2))
 
-  return (message,loads.label,loads.combination , ratio, n_main_bar, n_x_legs, n_y_legs)
+  return (message,loads.label,loads.combination , ratio, n_main_bar, n_x_legs, n_y_legs, *loads.get_shear_design_forces_tuple())
 
 
 if __name__ == "__main__":

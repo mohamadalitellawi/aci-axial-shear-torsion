@@ -74,17 +74,23 @@ class Loads:
       print(f"F1,F2,F3,M1")
     print(f"{self.f1},{self.f2},{self.f3},{self.m1}")
 
+  def get_shear_design_forces_tuple(self):
+    return (self.f1,self.f2,self.f3,self.m1)
+
   def parse_manual_data(self,data_row):
     self.f1 = float(data_row[0].strip())
     self.f2 = float(data_row[1].strip())
     self.f3 = float(data_row[2].strip())
     self.m1 = float(data_row[3].strip())
 
-  def parse_excel_data(self, data_row):
+  def parse_excel_data(self, data_row, correct_axial_sign = True):
     self.label = data_row[0]
     self.combination = data_row[1]
     self.casetype = data_row[2]
-    self.f1 = float(data_row[3])
+    if correct_axial_sign:  #correct to consider the compression positive, since SAP consider compression negative
+      self.f1 = -1 * float(data_row[3])
+    else:
+      self.f1 = float(data_row[3])
     self.f2 = float(data_row[4])
     self.f3 = float(data_row[5])
     self.m1 = float(data_row[6])
