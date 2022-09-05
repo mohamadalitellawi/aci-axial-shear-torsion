@@ -149,8 +149,12 @@ class ASTApp:
           doupdate = doupdate.capitalize()
           if (len(doupdate) > 0 and doupdate[0] == 'Y'):
             excelfilename = input("Enter Excel File Name: ")
+            if len(excelfilename) == 0 : excelfilename = self.sm.filename
             if excelfilename.capitalize()[0] == "X": continue
+
             sheetname = input("Enter Sheet Name: ")
+            if len(sheetname) == 0 : sheetname = self.sm.sheetname
+            
             self.sm = SheetManager(excelfilename,sheetname)
             self.sm.print_file_sheet_names()
 
